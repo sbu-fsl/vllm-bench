@@ -95,7 +95,7 @@ Edit `example/config.json` (required keys shown):
       }
     }
   },
-  "workloads": { ... }
+  "workloads": {}
 }
 ```
 
