@@ -1,14 +1,16 @@
-# vLLM Bench: Real-World LLM Inference Benchmarking for vLLM
+# VLMBench
+
+A scalable benchmarking framework for evaluating LLM inference performance via the OpenAI-compatible API. It is specifically designed for testing vLLM instances, supporting workloads from small micro-benchmarks (latency, token throughput) to large-scale stress tests (high concurrency, multi-GPU scaling). The system enables configurable experiments and detailed metric collection to analyze performance, scalability, and stability under different deployment conditions.
 
 ## Prereqs
 
-* A running vLLM instance accessible via HTTP.
+* A running vLLM instance accessible via HTTP with OpenAI API available.
 * Python 3.10+
 
 ## Install
 
 ```bash
-pip install -r requirements.txt
+./setup.sh
 ```
 
 ## Usage
@@ -42,19 +44,19 @@ python main.py --data-dir /tmp/datasets narrativeqa
 
 ## Available Benchmarks
 
-| Benchmark | Description |
-|---|---|
-| `alpaca` | Instruction following |
-| `humaneval` | Python code generation |
-| `kvprobe` | KV cache efficiency test |
-| `leval` | Long context evaluation |
-| `longbench_gov` | Government report summarization |
-| `longbench_qmsum` | Meeting summarization |
-| `loogle` | Long document summarization |
-| `narrativeqa` | Story-based reading comprehension |
-| `sharegpt` | Multi-turn conversations |
-| `triviaqa` | Open-domain trivia QA |
-| `wikitext` | Language modeling |
+| Benchmark         | Description                       |
+|-------------------|-----------------------------------|
+| `alpaca`          | Instruction following             |
+| `humaneval`       | Python code generation            |
+| `kvprobe`         | KV cache efficiency test          |
+| `leval`           | Long context evaluation           |
+| `longbench_gov`   | Government report summarization   |
+| `longbench_qmsum` | Meeting summarization             |
+| `loogle`          | Long document summarization       |
+| `narrativeqa`     | Story-based reading comprehension |
+| `sharegpt`        | Multi-turn conversations          |
+| `triviaqa`        | Open-domain trivia QA             |
+| `wikitext`        | Language modeling                 |
 
 ## Files
 
