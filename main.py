@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-vLLM Benchmark Coordinator
+VLMBench Coordinator
 
 Usage:
   ./main.py --list
