@@ -23,14 +23,16 @@ Examples:
 import argparse
 import os
 import sys
+from typing import Dict, Any
 
+from src import Benchmark
 from benchmarks import REGISTRY, list_all
 from src.utils import assert_server_up, detect_model
 from src.worker import Worker
 from vars import init_vars
 
 
-def run_benchmark(vars, name, benchmark, endpoint):
+def run_benchmark(vars: Dict[str, Any], name: str, benchmark: Benchmark, endpoint: str):
     """
     Run a single benchmark: iterate its entries, send HTTP requests,
     and print the status code for each.

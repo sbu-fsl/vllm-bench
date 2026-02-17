@@ -1,11 +1,12 @@
 import os
+from typing import Dict, Any
 
 REQUEST_TIMEOUT = 600  # seconds
 DEFAULT_ENDPOINT = "http://127.0.0.1:8080"
 DEFAULT_DATA_DIR = "./data"
 
 
-def init_vars() -> dict:
+def init_vars() -> Dict[str, Any]:
     """Read environment variables and return a dictionary of variables."""
 
     vars = {
