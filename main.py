@@ -27,16 +27,16 @@ import sys
 from benchmarks import REGISTRY, list_all
 from src.utils import assert_server_up, detect_model
 from src.worker import Worker
-from vars import DEFAULT_DATA_DIR, DEFAULT_ENDPOINT, REQUEST_TIMEOUT
+from vars import init_vars
 
 
-def run_benchmark(name, benchmark, endpoint):
+def run_benchmark(vars, name, benchmark, endpoint):
     """
     Run a single benchmark: iterate its entries, send HTTP requests,
     and print the status code for each.
     """
     print(f"\n=== Benchmark: {name} ===")
-    w = Worker(REQUEST_TIMEOUT)
+    w = Worker(timeout=vars["REQUEST_TIMEOUT"])
 
     for result in benchmark.run():
         uri = result["uri"]
@@ -62,6 +62,8 @@ def run_benchmark(name, benchmark, endpoint):
 
 
 def main():
+    vars = init_vars()
+
     ap = argparse.ArgumentParser(
         description="VLMBench — connects to a running vLLM instance"
     )
@@ -70,8 +72,8 @@ def main():
     )
     ap.add_argument(
         "--endpoint",
-        default=DEFAULT_ENDPOINT,
-        help=f"vLLM endpoint URL (default: {DEFAULT_ENDPOINT})",
+        default=vars["DEFAULT_ENDPOINT"],
+        help=f"vLLM endpoint URL (default: {vars['DEFAULT_ENDPOINT']})",
     )
     ap.add_argument(
         "--model",
@@ -80,8 +82,8 @@ def main():
     )
     ap.add_argument(
         "--data-dir",
-        default=DEFAULT_DATA_DIR,
-        help=f"Dataset cache directory (default: {DEFAULT_DATA_DIR})",
+        default=vars["DEFAULT_DATA_DIR"],
+        help=f"Dataset cache directory (default: {vars['DEFAULT_DATA_DIR']})",
     )
     ap.add_argument(
         "benchmarks",
@@ -135,7 +137,7 @@ def main():
     for name in args.benchmarks:
         bench_cls = REGISTRY[name]
         benchmark = bench_cls.create(model=model, cache_dir=data_dir)
-        n, ok, fail = run_benchmark(name, benchmark, endpoint)
+        n, ok, fail = run_benchmark(vars, name, benchmark, endpoint)
         total_n += n
         total_ok += ok
         total_fail += fail
