@@ -1,6 +1,6 @@
 """LongBench meeting summarization benchmark."""
 
-from dataloaders.local_dataset import LocalDataset
+from dataloaders import LocalDataset
 from dataloaders.longbench_dataset import LongBenchDataset
 from src.benchmark import Benchmark
 from tasks.completion import Completion
@@ -45,6 +45,6 @@ class LocalLongBenchQMSumBenchmark(Benchmark):
 
     @classmethod
     def create(cls, model: str, cache_dir: str) -> "LocalLongBenchQMSumBenchmark":
-        dataset = LocalDataset("/mnt/gpfs/llm-datasets/qmsum.csv", limit=100)
+        dataset = LocalDataset("qmsum.csv", cache_dir, limit=100)
         task = Completion(model=model)
         return cls(dataset, task)

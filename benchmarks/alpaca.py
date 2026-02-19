@@ -1,7 +1,7 @@
 """Alpaca instruction-following benchmark."""
 
+from dataloaders import LocalDataset
 from dataloaders.hf_dataset import HFDataset
-from dataloaders.local_dataset import LocalDataset
 from src.benchmark import Benchmark
 from tasks.completion import Completion
 
@@ -43,6 +43,6 @@ class LocalAlpacaBenchmark(Benchmark):
 
     @classmethod
     def create(cls, model: str, cache_dir: str) -> "LocalAlpacaBenchmark":
-        dataset = LocalDataset("/mnt/gpfs/llm-datasets/alpaca.csv", limit=100)
+        dataset = LocalDataset("alpaca.csv", cache_dir, limit=100)
         task = Completion(model=model)
         return cls(dataset, task)

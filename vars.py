@@ -3,7 +3,7 @@ from typing import Dict, Any
 
 REQUEST_TIMEOUT = 600  # seconds
 DEFAULT_ENDPOINT = "http://127.0.0.1:8080"
-DEFAULT_DATA_DIR = "./data"
+DEFAULT_DATA_DIR = "/mnt/gpfs/llm-datasets"
 
 
 def init_vars() -> Dict[str, Any]:

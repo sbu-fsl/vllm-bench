@@ -1,7 +1,7 @@
 """NarrativeQA reading comprehension benchmark."""
 
+from dataloaders import LocalDataset
 from dataloaders.hf_dataset import HFDataset
-from dataloaders.local_dataset import LocalDataset
 from src.benchmark import Benchmark
 from tasks.completion import Completion
 
@@ -61,6 +61,6 @@ class LocalNarrativeQABenchmark(Benchmark):
 
     @classmethod
     def create(cls, model: str, cache_dir: str) -> "LocalNarrativeQABenchmark":
-        dataset = LocalDataset("/mnt/gpfs/llm-datasets/narrativeqa.csv", limit=100)
+        dataset = LocalDataset("narrativeqa.csv", cache_dir, limit=100)
         task = Completion(model=model)
         return cls(dataset, task)

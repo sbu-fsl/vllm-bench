@@ -32,7 +32,7 @@ from src.worker import Worker
 from vars import init_vars
 
 
-def run_benchmark(vars: Dict[str, Any], name: str, benchmark: Benchmark, endpoint: str):
+def run_benchmark(vars: Dict[str, Any], name: str, benchmark: Benchmark, endpoint: str, stop_after: int = 0):
     """
     Run a single benchmark: iterate its entries, send HTTP requests,
     and print the status code for each.
@@ -43,14 +43,15 @@ def run_benchmark(vars: Dict[str, Any], name: str, benchmark: Benchmark, endpoin
     count = 0
     for result in benchmark.run():
         count += 1
-        if count == 10:
-            break  # For quick testing; remove this line to run the full benchmark
+        if stop_after > 0 and count > stop_after:
+            break
         
         uri = result["uri"]
         payload = result["payload"]
 
-        # Skip entries with empty prompts (filtered by build_input)
+        # skip entries with empty prompts (filtered by build_input)
         if not payload.get("prompt") and not payload.get("messages"):
+            count -= 1
             continue
 
         url = f"{endpoint.rstrip('/')}/v1{uri}"
@@ -91,6 +92,12 @@ def main():
         "--data-dir",
         default=vars["DEFAULT_DATA_DIR"],
         help=f"Dataset cache directory (default: {vars['DEFAULT_DATA_DIR']})",
+    )
+    ap.add_argument(
+        "--stop-after",
+        type=int,
+        default=0,
+        help="Stop after processing this many entries (for quick testing; default: 0, meaning no limit)",
     )
     ap.add_argument(
         "benchmarks",
@@ -144,7 +151,7 @@ def main():
     for name in args.benchmarks:
         bench_cls = REGISTRY[name]
         benchmark = bench_cls.create(model=model, cache_dir=data_dir)
-        n, ok, fail = run_benchmark(vars, name, benchmark, endpoint)
+        n, ok, fail = run_benchmark(vars, name, benchmark, endpoint, stop_after=args.stop_after)
         total_n += n
         total_ok += ok
         total_fail += fail
