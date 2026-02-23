@@ -1,14 +1,12 @@
-"""Local dataset reader (from existing CSV file)."""
-
 import csv
 import os
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
 from src.dataset import Dataset
 
 
 class LocalDataset(Dataset):
-    """LocalDataset reads data from local CSV file."""
+    """Streaming CSV dataset (no full load into memory)."""
 
     def __init__(
         self,
@@ -19,39 +17,51 @@ class LocalDataset(Dataset):
     ):
         super().__init__(path if absolute_path else os.path.join(cache_dir, path))
 
-        self._cache_dir = cache_dir
         self._limit = limit
-        self._data: Optional[List[Dict[str, Any]]] = None
+        self._file = None
+        self._reader = None
         self._idx = 0
 
-    def _load(self):
-        """Load CSV file into memory (lazy loading)."""
-        if self._data is not None:
+    def _open(self):
+        if self._reader is not None:
             return
 
-        self._data = []
-        with open(self.address(), "r", newline="", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for i, row in enumerate(reader):
-                if self._limit is not None and i >= self._limit:
-                    break
-                self._data.append(row)
-
-    def count(self) -> int:
-        self._load()
-        return len(self._data)
+        self._file = open(self.address(), "r", newline="", encoding="utf-8")
+        self._reader = csv.DictReader(self._file)
+        self._idx = 0
 
     def next(self):
-        """Return next row or None if exhausted."""
-        self._load()
+        self._open()
 
-        if self._idx >= len(self._data):
+        if self._limit is not None and self._idx >= self._limit:
             raise StopIteration
 
-        item = self._data[self._idx]
+        try:
+            row = next(self._reader)
+        except StopIteration:
+            raise
+
         self._idx += 1
-        return item
+        return row
 
     def reset(self):
-        """Reset iteration index."""
+        if self._file:
+            self._file.close()
+
+        self._file = None
+        self._reader = None
         self._idx = 0
+
+    def count(self):
+        # avoid full load: count lazily
+        self.reset()
+        self._open()
+
+        count = 0
+        for _ in self._reader:
+            if self._limit is not None and count >= self._limit:
+                break
+            count += 1
+
+        self.reset()
+        return count
