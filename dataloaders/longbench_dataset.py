@@ -11,9 +11,7 @@ from src.dataset import Dataset
 class LongBenchDataset(Dataset):
     """Loads LongBench JSONL data from HF Hub zip archive."""
 
-    def __init__(
-        self, task_name: str, cache_dir: str, limit: Optional[int] = None
-    ):
+    def __init__(self, task_name: str, cache_dir: str, limit: Optional[int] = None):
         super().__init__(task_name)
         self._cache_dir = cache_dir
         self._limit = limit
@@ -62,4 +60,3 @@ class LongBenchDataset(Dataset):
         entry = self._data[self._idx]
         self._idx += 1
         return entry
-

@@ -61,4 +61,3 @@ class LEvalDataset(Dataset):
         entry = self._data[self._idx]
         self._idx += 1
         return entry
-

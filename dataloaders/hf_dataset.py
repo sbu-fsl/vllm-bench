@@ -54,4 +54,3 @@ class HFDataset(Dataset):
         row = next(self._iter)
         self._n += 1
         return dict(row)
-

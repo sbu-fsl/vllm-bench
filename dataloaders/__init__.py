@@ -10,8 +10,15 @@ from src.dataset import Dataset
 class LocalDataset(Dataset):
     """LocalDataset reads data from local CSV file."""
 
-    def __init__(self, path: str, cache_dir: str, limit: Optional[int] = None):
-        super().__init__(os.path.join(cache_dir, path))
+    def __init__(
+        self,
+        path: str,
+        cache_dir: str,
+        absolute_path: bool = False,
+        limit: Optional[int] = None,
+    ):
+        super().__init__(path if absolute_path else os.path.join(cache_dir, path))
+
         self._cache_dir = cache_dir
         self._limit = limit
         self._data: Optional[List[Dict[str, Any]]] = None
@@ -32,15 +39,14 @@ class LocalDataset(Dataset):
 
     def count(self) -> int:
         self._load()
-        total = len(self._data)
-        return total
+        return len(self._data)
 
     def next(self):
         """Return next row or None if exhausted."""
         self._load()
 
         if self._idx >= len(self._data):
-            return None
+            raise StopIteration
 
         item = self._data[self._idx]
         self._idx += 1
