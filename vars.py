@@ -1,5 +1,5 @@
 import os
-from typing import Dict, Any
+from typing import Any, Dict
 
 REQUEST_TIMEOUT = 600  # seconds
 DEFAULT_ENDPOINT = "http://127.0.0.1:8080"

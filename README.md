@@ -28,6 +28,7 @@ python main.py [--endpoint URL] [--model MODEL] [--data-dir DIR] benchmark1 [ben
 * `--endpoint URL` — vLLM endpoint (default: `http://127.0.0.1:8080`)
 * `--model MODEL` — Model name (auto-detected from endpoint if omitted)
 * `--data-dir DIR` — Dataset cache directory (default: `./data`)
+* `--stop-after N` — Stop after processing N entries (for quick testing; default: 0, meaning no limit)
 
 ### Examples
 
@@ -60,7 +61,7 @@ python main.py --data-dir /tmp/datasets narrativeqa
 
 ## Files
 
-```
+```txt
 .
 ├── main.py              # Benchmark runner (CLI entry point)
 ├── benchmarks/          # Benchmark task implementations
@@ -71,7 +72,7 @@ python main.py --data-dir /tmp/datasets narrativeqa
 
 ## Authors
 
-* Alexander "Sasha" Joukov (alexander.joukov@stonybrook.edu)
-* Amir Zadeh (anajafizadeh@cs.stonybrook.edu)
+* Alexander "Sasha" Joukov (<alexander.joukov@stonybrook.edu>)
+* Amir Zadeh (<anajafizadeh@cs.stonybrook.edu>)
 
 File Systems & Storage Lab @ Stony Brook University, 2026
