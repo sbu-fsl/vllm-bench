@@ -1,8 +1,11 @@
 import csv
 import os
+import sys
 from typing import Optional
 
 from src.dataset import Dataset
+
+csv.field_size_limit(sys.maxsize)
 
 
 class LocalDataset(Dataset):
