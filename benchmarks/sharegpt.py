@@ -43,18 +43,38 @@ class LocalShareGPTBenchmark(Benchmark):
     """ShareGPT: conversational prompt/response pairs."""
 
     def build_input(self, entry):
-        conv = entry.get("conversations") or entry.get("messages")
+        conv = entry.get("conversation") or entry.get("messages")
         if not conv or not isinstance(conv, list):
             return "", {}
+    
         q = ""
+    
         for m in conv:
-            if m.get("from") in ("human", "user") or m.get("role") == "user":
-                q = _to_text(m.get("value") or m.get("content"))
+            # Format 1: {"human": "..."}
+            if "human" in m:
+                q = _to_text(m["human"])
                 break
+    
+            # Format 2: {"from": "human", "value": "..."}
+            if m.get("from") in ("human", "user"):
+                q = _to_text(m.get("value"))
+                break
+    
+            # Format 3: {"role": "user", "content": "..."}
+            if m.get("role") == "user":
+                q = _to_text(m.get("content"))
+                break
+    
         if not q:
             return "", {}
+    
         prompt = q
-        opts = {"temperature": 0.7, "max_tokens": 512, "top_p": 0.95}
+        opts = {
+            "temperature": 0.7,
+            "max_tokens": 512,
+            "top_p": 0.95,
+        }
+    
         return prompt, opts
 
     @classmethod
