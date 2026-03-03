@@ -23,6 +23,7 @@ Examples:
 import argparse
 import os
 import sys
+import time
 from typing import Any, Dict
 
 from benchmarks import REGISTRY, list_all
@@ -68,7 +69,14 @@ def run_benchmark(
         if truncate and max_model_len > 0:
             payload = truncate_payload(endpoint, payload, max_model_len)
 
+        t0 = time.monotonic()
         w.process(name=name, url=url, headers=headers, payload=payload)
+        elapsed = time.monotonic() - t0
+
+        remaining = vars["REQUEST_TIMEOUT"] - elapsed
+        if remaining > 0:
+            # print(f"Sleeping {remaining:.1f}s (ran {elapsed:.1f}s / {vars['REQUEST_TIMEOUT']}s timeout)")
+            time.sleep(remaining)
 
     stats = w.stats()
     n = stats["total_requests"]
