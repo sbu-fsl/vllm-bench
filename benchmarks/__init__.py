@@ -1,34 +1,40 @@
 """Benchmark registry."""
 
-from .alpaca import AlpacaBenchmark, LocalAlpacaBenchmark
-from .humaneval import HumanEvalBenchmark
-from .kvprobe import KVProbeBenchmark
-from .leval import LEvalBenchmark
-from .longbench_gov import LongBenchGovBenchmark
-from .longbench_qmsum import LocalLongBenchQMSumBenchmark, LongBenchQMSumBenchmark
-from .loogle import LooGLEBenchmark
-from .narrativeqa import LocalNarrativeQABenchmark, NarrativeQABenchmark
-from .sharegpt import LocalShareGPTBenchmark, ShareGPTBenchmark
-from .triviaqa import TriviaQABenchmark
-from .wikitext import WikitextBenchmark
+from .alpaca import LocalAlpacaBenchmark
+from .longbench_qmsum import LocalLongBenchQMSumBenchmark
+from .narrativeqa import LocalNarrativeQABenchmark
+from .sharegpt import LocalShareGPTBenchmark
 from .wmt16 import WMT16Benchmark
 
+
+# from .alpaca import AlpacaBenchmark
+# from .longbench_qmsum import LongBenchQMSumBenchmark
+# from .narrativeqa import NarrativeQABenchmark
+# from .sharegpt import ShareGPTBenchmark
+# from .loogle import LooGLEBenchmark
+# from .humaneval import HumanEvalBenchmark
+# from .kvprobe import KVProbeBenchmark
+# from .leval import LEvalBenchmark
+# from .longbench_gov import LongBenchGovBenchmark
+# from .triviaqa import TriviaQABenchmark
+# from .wikitext import WikitextBenchmark
+
 REGISTRY = {
-    "alpaca": AlpacaBenchmark,
+    # "alpaca": AlpacaBenchmark,
+    # "triviaqa": TriviaQABenchmark,
+    # "narrativeqa": NarrativeQABenchmark,
+    # "wikitext": WikitextBenchmark,
+    # "humaneval": HumanEvalBenchmark,
+    # "longbench_gov": LongBenchGovBenchmark,
+    # "longbench_qmsum": LongBenchQMSumBenchmark,
+    # "loogle": LooGLEBenchmark,
+    # "leval": LEvalBenchmark,
+    # "kvprobe": KVProbeBenchmark,
+    # "sharegpt": ShareGPTBenchmark,
     "local_alpaca": LocalAlpacaBenchmark,
-    "triviaqa": TriviaQABenchmark,
-    "narrativeqa": NarrativeQABenchmark,
-    "local_narrativeqa": LocalNarrativeQABenchmark,
-    "wikitext": WikitextBenchmark,
-    "humaneval": HumanEvalBenchmark,
-    "longbench_gov": LongBenchGovBenchmark,
-    "longbench_qmsum": LongBenchQMSumBenchmark,
     "local_longbench_qmsum": LocalLongBenchQMSumBenchmark,
-    "leval": LEvalBenchmark,
-    "kvprobe": KVProbeBenchmark,
-    "sharegpt": ShareGPTBenchmark,
+    "local_narrativeqa": LocalNarrativeQABenchmark,
     "local_sharegpt": LocalShareGPTBenchmark,
-    "loogle": LooGLEBenchmark,
     "wmt16": WMT16Benchmark,
 }
 

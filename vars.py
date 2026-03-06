@@ -1,7 +1,7 @@
 import os
 from typing import Any, Dict
 
-REQUEST_TIMEOUT = 600  # seconds
+REQUEST_TIMEOUT = 30  # seconds
 DEFAULT_ENDPOINT = "http://127.0.0.1:8080"
 DEFAULT_DATA_DIR = "/mnt/gpfs/llm-datasets"
 
