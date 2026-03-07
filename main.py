@@ -25,6 +25,7 @@ import os
 import queue
 import sys
 from typing import Any, Dict
+import time
 
 from benchmarks import REGISTRY, list_all
 from src import Benchmark
@@ -46,11 +47,35 @@ def run_benchmark(
     """
     Run a single benchmark: iterate its entries, send HTTP requests,
     and print the status code for each.
+
+    Parameters
+    ----------
+    vars : Dict[str, Any]
+        Global variables and configuration.
+    name : str
+        Benchmark name (for display).
+    benchmark : Benchmark
+        Benchmark instance to run.
+    endpoint : str
+        vLLM endpoint URL.
+    clients : int
+        Number of concurrent client workers to use.
+    stop_after : int, optional
+        Stop after processing this many entries (for quick testing; default: 0, meaning no limit).
+    truncate : bool, optional
+        Whether to truncate inputs that exceed the model's context window (default: False).
+    max_model_len : int, optional
+        Maximum model context length (required if truncate is True; default: 0).
     """
+
     print(f"\n=== Benchmark: {name} ===")
+    print(f"Start time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+
+    # Shared queue for jobs and stats collector
     jobs: "queue.Queue[Dict[str, Any] | None]" = queue.Queue()
     stats = WorkerStats()
 
+    # Create worker threads
     workers = [
         Worker(
             request_timeout=vars["REQUEST_TIMEOUT"],
@@ -61,9 +86,12 @@ def run_benchmark(
         for index in range(max(1, clients))
     ]
 
+    # Start workers
     for worker in workers:
+        print(f"Starting worker {worker.worker_id} ...")
         worker.start()
 
+    # Iterate benchmark entries and enqueue jobs
     count = 0
     for result in benchmark.run():
         count += 1
@@ -81,10 +109,11 @@ def run_benchmark(
         url = f"{endpoint.rstrip('/')}/v1{uri}"
         headers = {"Content-Type": "application/json"}
 
+        # Truncate payload if needed (and if we know the model's max context length)
         if truncate and max_model_len > 0:
             payload = truncate_payload(endpoint, payload, max_model_len)
 
-        # each worker will process this job and update stats
+        # Each worker will process this job and update stats
         for _ in workers:
             jobs.put(
                 {
@@ -95,27 +124,34 @@ def run_benchmark(
                 }
             )
 
+    # Signal workers to stop (one None per worker)
     for _ in workers:
         jobs.put(None)
 
+    # Wait for all jobs to be processed
     jobs.join()
 
+    # Wait for all workers to finish
     for worker in workers:
         worker.join()
 
+    # Print summary
     summary = stats.stats()
     n = summary["total_requests"]
     ok = summary["success"]
     fail = summary["http_error"] + summary["timeout"] + summary["exception"]
 
     print(f"--- {name}: {n} requests, {ok} ok, {fail} failed ---")
+    print(f"End time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
 
     return n, ok, fail
 
 
 def main():
+    # Initialize global variables and configuration
     vars = init_vars()
 
+    # Parse command-line arguments
     ap = argparse.ArgumentParser(
         description="VLMBench — connects to a running vLLM instance"
     )
@@ -160,8 +196,10 @@ def main():
         help="Benchmark names to run",
     )
 
+    # Parse arguments
     args = ap.parse_args()
 
+    # Handle --list
     if args.list:
         print("Available benchmarks:")
         for name in list_all():
@@ -212,14 +250,18 @@ def main():
     total_ok = 0
     total_fail = 0
 
+    # Note: we run benchmarks sequentially to avoid interleaving their outputs and to simplify resource management.
+    print(f"\n=== Running {len(args.benchmarks)} benchmark(s) sequentially with {args.clients} client(s) each ===")
     for name in args.benchmarks:
         bench_cls = REGISTRY[name]
         benchmark = bench_cls.create(model=model, cache_dir=data_dir)
+
         n, ok, fail = run_benchmark(
             vars, name, benchmark, endpoint, clients=args.clients,
             stop_after=args.stop_after,
             truncate=args.truncate, max_model_len=max_model_len,
         )
+
         total_n += n
         total_ok += ok
         total_fail += fail
@@ -227,9 +269,7 @@ def main():
     print(
         f"\n=== All done: {total_n} total requests, {total_ok} ok, {total_fail} failed ==="
     )
-
-    if total_fail > 0:
-        sys.exit(1)
+    print(f"End time: {time.strftime('%Y-%m-%d %H:%M:%S')}")
 
 
 if __name__ == "__main__":

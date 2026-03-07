@@ -40,11 +40,14 @@ def truncate_payload(endpoint: str, payload: dict, max_model_len: int) -> dict:
     Tokenize the input; if it exceeds max_model_len - max_tokens, truncate and detokenize.
     Works for both chat completions (messages) and completions (prompt).
     """
+
     base = endpoint.rstrip("/")
     model = payload.get("model", "")
+
     generation_tokens = payload.get("max_tokens")
     if generation_tokens is None:
         raise ValueError("Payload must include 'max_tokens' when using --truncate")
+
     # Subtract a small buffer to account for special tokens (e.g. BOS)
     # added during the detokenize → re-tokenize round-trip
     limit = max_model_len - generation_tokens - 2
@@ -88,6 +91,7 @@ def truncate_payload(endpoint: str, payload: dict, max_model_len: int) -> dict:
         json={"model": model, "tokens": truncated_tokens},
         timeout=10,
     )
+    
     detok_r.raise_for_status()
     truncated_text = detok_r.json().get("prompt", "")
 
