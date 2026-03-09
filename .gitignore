@@ -181,3 +181,4 @@ runs
 data
 __pycache__
 .venv
+*.csv
