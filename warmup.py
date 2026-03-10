@@ -2,6 +2,7 @@ import requests
 import threading
 import time
 import math
+from src.utils import truncate_payload
 
 PROMPT_RATIO = 1.0 / 3.0
 REQUEST_INTERVAL_S = 1.0
@@ -29,13 +30,14 @@ def _estimate_concurrency(total_kv_tokens: int, prompt_tokens: int, gen_tokens: 
 
 
 def _keep_request_alive(
+    endpoint: str,
     completions_url: str,
     model: str,
     prompt_tokens: int,
     gen_tokens: int,
     request_timeout_s: float,
 ) -> None:
-    prompt = "warmup " * prompt_tokens
+    prompt = "warmup " * max(prompt_tokens * 3, prompt_tokens)
 
     payload = {
         "model": model,
@@ -44,6 +46,8 @@ def _keep_request_alive(
         "temperature": 0,
         "stream": True,
     }
+
+    payload = truncate_payload(endpoint, payload, max_model_len=prompt_tokens + gen_tokens + 2)
 
     try:
         with requests.post(
@@ -88,6 +92,7 @@ def run_warmup_plugin(
         t = threading.Thread(
             target=_keep_request_alive,
             args=(
+                endpoint,
                 completions_url,
                 model,
                 prompt_tokens,
