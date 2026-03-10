@@ -203,6 +203,12 @@ def main():
         help="Total KV cache tokens (required with --warmup)",
     )
     ap.add_argument(
+        "--warmup-utilization-perc",
+        type=float,
+        default=100.0,
+        help="Warmup KV utilization percentage in (0, 100] (default: 100)",
+    )
+    ap.add_argument(
         "benchmarks",
         nargs="*",
         help="Benchmark names to run",
@@ -232,6 +238,10 @@ def main():
 
     if args.warmup and args.total_kv_tokens <= 0:
         print("Error: --total-kv-tokens must be > 0 when --warmup is set.", file=sys.stderr)
+        sys.exit(2)
+
+    if not (0.0 < args.warmup_utilization_perc <= 100.0):
+        print("Error: --warmup-utilization-perc must be in (0, 100].", file=sys.stderr)
         sys.exit(2)
 
     # Validate benchmark names
@@ -271,6 +281,7 @@ def main():
             model=model,
             max_model_len=max_model_len,
             total_kv_tokens=args.total_kv_tokens,
+            utilization_perc=args.warmup_utilization_perc,
         )
 
     if not args.benchmarks:

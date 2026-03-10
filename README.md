@@ -24,6 +24,9 @@ python main.py [--endpoint URL] [--model MODEL] [--data-dir DIR] [--clients N] b
 
 # Run warmup plugin only
 python main.py --warmup --total-kv-tokens 8388608
+
+# Run warmup plugin at 80% KV utilization estimate
+python main.py --warmup --total-kv-tokens 8388608 --warmup-utilization-perc 80
 ```
 
 ### Options
@@ -36,7 +39,8 @@ python main.py --warmup --total-kv-tokens 8388608
 * `--truncate` - Truncate input requests based on the maximum model len
 * `--warmup` — Run warmup plugin before benchmarks (or standalone)
 * `--total-kv-tokens N` — Total KV cache tokens (required with `--warmup`)
-* Warmup estimates concurrency from `max_model_len` and `--total-kv-tokens` (no metrics polling)
+* `--warmup-utilization-perc N` — Use N% of total KV tokens for warmup estimate (default: `100`)
+* Warmup estimates concurrency from `max_model_len` and KV token budget (no metrics polling)
 
 ### Examples
 
@@ -58,6 +62,9 @@ python main.py --warmup --total-kv-tokens 8388608 narrativeqa
 
 # Warmup only
 python main.py --warmup --total-kv-tokens 8388608
+
+# Warmup at 90% utilization estimate
+python main.py --warmup --total-kv-tokens 8388608 --warmup-utilization-perc 90
 ```
 
 ## Files

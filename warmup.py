@@ -2,6 +2,7 @@ import requests
 import threading
 import time
 import math
+import uuid
 from src.utils import truncate_payload
 
 PROMPT_RATIO = 1.0 / 3.0
@@ -37,7 +38,8 @@ def _keep_request_alive(
     gen_tokens: int,
     request_timeout_s: float,
 ) -> None:
-    prompt = "warmup " * max(prompt_tokens * 3, prompt_tokens)
+    unique_tag = f"warmup-{uuid.uuid4().hex}-{time.time_ns()}"
+    prompt = f"{unique_tag} " + ("warmup " * max(prompt_tokens * 3, prompt_tokens))
 
     payload = {
         "model": model,
@@ -68,19 +70,24 @@ def run_warmup_plugin(
     model: str,
     max_model_len: int,
     total_kv_tokens: int,
+    utilization_perc: float = 100.0,
     request_interval_s: float = REQUEST_INTERVAL_S,
     request_timeout_s: float = DEFAULT_REQUEST_TIMEOUT_S,
 ) -> None:
     completions_url = f"{endpoint.rstrip('/')}/v1/completions"
     prompt_tokens, gen_tokens = _split_tokens_from_max_len(max_model_len)
+
+    effective_kv_tokens = max(1, int(math.ceil(total_kv_tokens * (utilization_perc / 100.0))))
     estimated_concurrency = _estimate_concurrency(
-        total_kv_tokens=total_kv_tokens,
+        total_kv_tokens=effective_kv_tokens,
         prompt_tokens=prompt_tokens,
         gen_tokens=gen_tokens,
     )
 
     print("=== Warmup plugin ===")
     print("Total KV tokens:", total_kv_tokens)
+    print("Requested utilization (%):", utilization_perc)
+    print("Effective KV tokens:", effective_kv_tokens)
     print("Max model length:", max_model_len)
     print("Prompt tokens:", prompt_tokens)
     print("Generation tokens:", gen_tokens)
@@ -113,10 +120,12 @@ def warmup(
     model: str,
     max_model_len: int,
     total_kv_tokens: int,
+    utilization_perc: float = 100.0,
 ) -> None:
     run_warmup_plugin(
         endpoint=endpoint,
         model=model,
         max_model_len=max_model_len,
         total_kv_tokens=total_kv_tokens,
+        utilization_perc=utilization_perc,
     )
