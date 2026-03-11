@@ -275,7 +275,9 @@ def main():
             model=model,
             max_model_len=max_model_len,
             total_kv_tokens=args.total_kv_tokens,
+            prefix_length_perc=70,
             utilization_perc=100,
+            cache_dir=data_dir,
         )
 
     if not args.benchmarks:
