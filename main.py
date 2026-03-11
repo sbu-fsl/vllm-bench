@@ -32,7 +32,7 @@ from src import Benchmark
 from src.utils import assert_server_up, detect_max_model_len, detect_model, truncate_payload
 from src.worker import Worker, WorkerStats
 from vars import init_vars
-from warmup import run_warmup_plugin
+from simulator import simulate
 
 
 def run_benchmark(
@@ -192,21 +192,15 @@ def main():
         help="Number of concurrent client workers (default: 1)",
     )
     ap.add_argument(
-        "--warmup",
+        "--simulate",
         action="store_true",
-        help="Run warmup plugin before benchmarks",
+        help="Run simulation instead of actual benchmarks",
     )
     ap.add_argument(
         "--total-kv-tokens",
         type=int,
         default=0,
         help="Total KV cache tokens (required with --warmup)",
-    )
-    ap.add_argument(
-        "--warmup-utilization-perc",
-        type=float,
-        default=100.0,
-        help="Warmup KV utilization percentage in (0, 100] (default: 100)",
     )
     ap.add_argument(
         "benchmarks",
@@ -275,13 +269,13 @@ def main():
         else:
             print(f"Max model length: {max_model_len}")
 
-    if args.warmup:
-        run_warmup_plugin(
+    if args.simulate:
+        simulate(
             endpoint=endpoint,
             model=model,
             max_model_len=max_model_len,
             total_kv_tokens=args.total_kv_tokens,
-            utilization_perc=args.warmup_utilization_perc,
+            utilization_perc=100,
         )
 
     if not args.benchmarks:
