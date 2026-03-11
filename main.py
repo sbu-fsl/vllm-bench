@@ -31,8 +31,8 @@ from benchmarks import REGISTRY, list_all
 from src import Benchmark
 from src.utils import assert_server_up, detect_max_model_len, detect_model, truncate_payload
 from src.worker import Worker, WorkerStats
-from vars import init_vars
-from simulator import simulate
+from src.vars import init_vars
+from plugins.simulator.simulator import simulate
 
 
 def run_benchmark(

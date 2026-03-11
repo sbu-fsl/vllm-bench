@@ -6,7 +6,7 @@ from typing import Optional
 import requests
 
 from src.utils import truncate_payload
-from text_sources import (
+from plugins.simulator.text_sources import (
     TaskType,
     TextSource,
     build_prompt_pair,
