@@ -35,7 +35,24 @@ def detect_max_model_len(endpoint: str) -> int:
     return data[0].get("max_model_len", 0)
 
 
-def truncate_payload(endpoint: str, payload: dict, max_model_len: int) -> dict:
+def token_count(endpoint: str, model: str, prompt: str) -> tuple[int, list[int]]:
+    """Get token count for a given prompt and model."""
+    
+    r = requests.post(
+        f"{endpoint.rstrip('/')}/tokenize",
+        json={"model": model, "prompt": prompt},
+        timeout=10,
+    )
+
+    r.raise_for_status()
+    
+    tokens = r.json().get("tokens", [])
+    count = r.json().get("count", len(tokens))
+
+    return count, tokens
+
+
+def truncate_payload(endpoint: str, payload: dict, max_model_len: int, count: int, tokens: list[int]) -> dict:
     """
     Tokenize the input; if it exceeds max_model_len - max_tokens, truncate and detokenize.
     Works for both chat completions (messages) and completions (prompt).
@@ -70,16 +87,6 @@ def truncate_payload(endpoint: str, payload: dict, max_model_len: int) -> dict:
         text = prompt
     else:
         return payload
-
-    tok_r = requests.post(
-        f"{base}/tokenize",
-        json={"model": model, "prompt": text},
-        timeout=10,
-    )
-
-    tok_r.raise_for_status()
-    tokens = tok_r.json().get("tokens", [])
-    count = tok_r.json().get("count", len(tokens))
 
     if count <= limit:
         return payload

@@ -37,7 +37,7 @@ from benchmarks import list_all as list_benchmarks
 from plugins import list_all as list_plugins
 from plugins import register_subcommands
 from src import Benchmark
-from src.utils import assert_server_up, detect_max_model_len, detect_model, truncate_payload
+from src.utils import assert_server_up, detect_max_model_len, detect_model, token_count, truncate_payload
 from src.worker import Worker, WorkerStats
 from src.vars import init_vars
 
@@ -117,9 +117,17 @@ def run_benchmark(
         url = f"{endpoint.rstrip('/')}/v1{uri}"
         headers = {"Content-Type": "application/json"}
 
+        # count tokens
+        count, tokens = token_count(endpoint, payload.get("model"), payload.get("prompt", ""))
+        if max_model_len > 0 and count > max_model_len:
+            print(
+                f"Entry {count} exceeds max model length ({count} > {max_model_len}).",
+                file=sys.stderr,
+            )
+
         # truncate payload if needed (and if we know the model's max context length)
         if truncate and max_model_len > 0:
-            payload = truncate_payload(endpoint, payload, max_model_len)
+            payload = truncate_payload(endpoint, payload, max_model_len, count, tokens)
 
         # each worker will process this job and update stats
         for _ in workers:
